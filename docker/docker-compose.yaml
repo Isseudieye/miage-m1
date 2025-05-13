@@ -1,0 +1,27 @@
+version: "3.9"  # Version de Docker Compose
+
+services:       # Définir les services (conteneurs)
+  service_1_name:  # Nom du service (ex : app, db)
+    build:                # Ou, construire à partir d'un Dockerfile
+      context: .          # Chemin vers le Dockerfile
+    ports:                # Mappage des ports
+      - "host_port:container_1_port"
+    environment:          # Variables d'environnement
+      - ENV_VAR_NAME=value
+    volumes:          # Volumes pour stocker ou partager des données comme celui vu avec le dockerfile
+      - type: bind
+        source: host_path         # Chemin du fichier/dossier sur la machine hote (locale)
+        target: conteneur_path     # Chemin du fichier/dossier dans le conteneur
+    depends_on:           # Dépendances entre services
+      - service_2_name
+
+  service_2_name: # Nom du service (ex : app, db)
+    image: image_2_name:tag  # Image Docker à utiliser
+    ports: # Mappage des ports
+      - "host_port:container_2_port"
+    volumes: # Volumes pour stocker ou partager des données
+      - volume_name:container_path
+    environment: # Variables d'environnement
+      - ENV_VAR_NAME=value
+volumes:                 # (Optionnel) Définir des volumes nommés
+  volume_name:
