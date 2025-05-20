@@ -1,0 +1,36 @@
+version: "3.9"  # Version de Docker Compose
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "8002:8000"
+    volumes:
+      - type: bind
+        source: ./app
+        target: /app
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@db:5432/dataplatform
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:12  
+    ports: 
+      - "5432:5432"
+    volumes: 
+      - db_volume:/var/lib/postgresql/data
+    environment: 
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespassword
+      - POSTGRES_DB=dataplatform
+    healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U postgres -d dataplatform" ]
+        interval: 10s
+        retries: 5
+        start_period: 30s
+        timeout: 10s
+volumes:                 
+  db_volume:
