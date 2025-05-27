@@ -1,0 +1,7 @@
+s3fs
+pandas
+psycopg2-binary
+requests
+pyarrow
+jupyter
+minio
