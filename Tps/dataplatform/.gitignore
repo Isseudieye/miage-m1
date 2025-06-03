@@ -1,1 +1,3 @@
-data/output/raw-data
+data/output/
+venv/*
+venv
