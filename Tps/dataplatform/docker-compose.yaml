@@ -31,8 +31,6 @@ services:
       - minio-data:/data
     restart: unless-stopped
 
-
-
   app:
     build:
       context: .
