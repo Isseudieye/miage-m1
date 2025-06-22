@@ -1,0 +1,75 @@
+services:
+
+  jupyter:
+    build: ./jupyter/
+    container_name: jupyter
+    command: ["jupyter", "notebook", "--allow-root", "--ip", "0.0.0.0", "--no-browser", "--NotebookApp.token=''", "--NotebookApp.password=''"]
+
+    ports:
+      - "8888:8888"
+    volumes:
+      - type: bind
+        source: ../_notebooks
+        target: /_notebooks
+    depends_on:
+      minio:
+        condition: service_started
+      postgres-db:
+        condition: service_healthy
+
+
+  minio:
+    build: ./minio/
+    container_name: minio
+    environment:
+      - MINIO_DOMAIN=minio
+      - MINIO_ROOT_USER=miniouser
+      - MINIO_ROOT_PASSWORD=miniopassword
+      - MINIO_REGION_NAME=eu-west-1
+      - MINIO_REGION=eu-west-1
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+
+  postgres-db:
+    build: ./postgres/
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: dataplatform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d dataplatform || exit 1" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  app:
+    build: ./app/
+    volumes:
+      - type: bind
+        source: ./app/utils
+        target: /app/utils
+      - type: bind
+        source: ../data
+        target: /app/data
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres-db:5432/dataplatform
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+
+
+volumes:
+  postgres-data:
+  minio-data:
