@@ -7,7 +7,7 @@ Comment démarrer ?
 
 0. être sur la bonne branche du projet
    ```bash
-   git checkout main && git pull git checkout -b "your-branch-name"
+   git checkout main && git pull && git checkout -b "your-branch-name"
    ```
 
 1. Si vous êtes sur la racine du projet lancer la commande
